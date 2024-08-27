@@ -3,6 +3,7 @@
 
 # Import necessary modules and packages
 import pandas as pd
+import smtplib
 from smtplib import SMTP
 
 while True:
@@ -53,26 +54,31 @@ senderPassword = input("What is the password for the above email address? ")
 s.login(senderEmail, senderPassword)
 
 # Read the subject to be sent to all email addresses in the Excel file
-sbjFile = open("subject.txt", "r")
+sbjFile = open("subject.txt", "r", encoding="utf-8")
 sbj = sbjFile.read()
 
 # Read the message to be sent to all email addresses in the Excel file
-msgFile = open("message.txt", "r")
+msgFile = open("message.txt", "r", encoding="utf-8")
 msg = msgFile.read()
 
 # Begin sending messages
 for i in range(len(emails)):
     # Edit the message with information from the Excel file
-    msgWithFullName = msg.replace("fullName", "%s %s" % (firstNames[i], lastNames[i]))
+    msgWithFullName = msg.replace("fullName", f"{firstNames[i]} {lastNames[i]}")
     msgFull = msgWithFullName.replace("name", firstNames[i])
 
     # Edit the subject with information from the Excel file
-    sbjWithFullName = sbj.replace("fullName", "%s %s" % (firstNames[i], lastNames[i]))
+    sbjWithFullName = sbj.replace("fullName", f"{firstNames[i]} {lastNames[i]}")
     sbjFull = sbjWithFullName.replace("name", firstNames[i])
 
+    # Create the full email message with proper headers
+    email_message = f"Subject: {sbjFull}\n"
+    email_message += "Content-Type: text/plain; charset=utf-8\n"
+    email_message += f"\n{msgFull}"
+
     # Send the email
-    s.sendmail(senderEmail, emails[i], "Subject: %s\n%s" % (sbj, msgFull))
-    print("Sent email to %s %s at %s." % (firstNames[i], lastNames[i], emails[i]))
+    s.sendmail(senderEmail, emails[i], email_message.encode("utf-8"))
+    print(f"Sent email to {firstNames[i]} {lastNames[i]} at {emails[i]}.")
 
 # Terminate connection once email sending has completed and close files
 s.quit()
