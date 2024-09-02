@@ -5,6 +5,7 @@
 import pandas as pd
 import smtplib
 from smtplib import SMTP
+import time
 
 while True:
     try:
@@ -79,7 +80,8 @@ for i in range(len(emails)):
     # Send the email
     s.sendmail(senderEmail, emails[i], email_message.encode("utf-8"))
     print(f"Sent email to {firstNames[i]} {lastNames[i]} at {emails[i]}.")
-
+    # Delay between sending emails
+    time.sleep(5)
 # Terminate connection once email sending has completed and close files
 s.quit()
 msgFile.close()
